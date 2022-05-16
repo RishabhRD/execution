@@ -25,22 +25,9 @@
 #pragma once
 
 #include <concepts>
-#include <stop_token>
-#include <utility>
+#include <concepts.hpp>
 
 namespace execution {
-namespace detail {
-template <template <class> class>
-struct check_type_alias_exists;
-
-template <typename B>
-concept boolean_testable_impl = std::convertible_to<B, bool>;
-
-template <typename B>
-concept boolean_testable = boolean_testable_impl<B> && requires(B&& b) {
-  { !std::forward<B>(b) } -> boolean_testable_impl;
-};
-}  // namespace detail
 
 template <typename T>
 concept stoppable_token = std::copy_constructible<T> &&
@@ -49,9 +36,9 @@ concept stoppable_token = std::copy_constructible<T> &&
     std::is_nothrow_move_constructible_v<T> &&
     std::equality_comparable<T> &&
     requires(T const& token) {
-      { token.stop_requested() } noexcept -> detail::boolean_testable;
-      { token.stop_possible() }  noexcept -> detail::boolean_testable;
-      typename detail::check_type_alias_exists<T::template callback_type>;
+      { token.stop_requested() } noexcept -> tf::boolean_testable;
+      { token.stop_possible() }  noexcept -> tf::boolean_testable;
+      typename tf::check_type_alias_exists<T::template callback_type>;
     };
 
 template <typename T, typename CB, typename Initializer>
@@ -69,7 +56,7 @@ concept stoppable_token_for = stoppable_token<T> &&
 template <typename T>
 concept unstoppable_token = stoppable_token<T> &&
     requires {
-      { T::stop_possible() } -> detail::boolean_testable;
+      { T::stop_possible() } -> tf::boolean_testable;
     } &&
     (!T::stop_possible());
 
