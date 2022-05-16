@@ -42,4 +42,7 @@ concept boolean_testable = detail::boolean_testable_impl<B> && requires(B&& b) {
   { !std::forward<B>(b) } -> detail::boolean_testable_impl;
 };
 
+template <typename T, typename... Ts>
+concept none_of = ((!std::same_as<T, Ts>)&&...);
+
 }  // namespace tf
